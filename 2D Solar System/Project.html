@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+ <canvas id="c" width="1000" height="1000"></canvas>
+ <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
+ <script src="source.js"></script>
+ <script src="src/renderSun.js"></script>
+ <script src="src/renderMoon.js"></script>
+ <script src="src/renderEarth.js"></script><br>
+ <button onclick="shine_sun()">Sun Shine</button>
+ <button onclick="blink_moon()">Moon Shine</button>
+ <button onclick="movMoon()">Moon Movement</button>
+ <button onclick="movEarth()">Earth Movement</button><br>
+ <p id="es">Earth Speed:</p>
+ <input type="range" onchange="speedupdateearth()" id="earthspeed" min="-5" max="5" step="0.1">
+ <br><p id="ms">Moon Speed: </p>
+ <input type="range" onchange="speedupdatemoon()" id="moonspeed" min="-10" max="10" step="1">
+ </body>
+</html>
+<script>
+    function shine_sun(){
+        shining = !shining;
+    }
+    function blink_moon(){
+        blinking = !blinking;
+    }
+    function control_sun_shine(){
+        if(shining == true){
+            if(s_sun_d == 1 && s_sun <= 0.3*1.5){
+                s_sun += 0.01;
+        }else{s_sun_d = 0}
+            if(s_sun_d == 0 && s_sun >= 0.3*0.5){
+                s_sun -= 0.01;
+        }else{s_sun_d = 1}
+        }
+    }
+    function control_moon_blinking(){
+        if(blinking == true){
+            if(s_moon_d == 1 && s_moon <= 0.3*1.25){
+                s_moon += 0.01;
+        }else{s_moon_d = 0}
+            if(s_moon_d == 0 && s_moon >= 0.3*0.75){
+                s_moon -= 0.01;
+        }else{s_moon_d = 1}
+        }
+    }
+    function movEarth(){
+        move_earth = !move_earth
+    }
+    function movMoon(){
+        move_moon = !move_moon
+    }
+    function speedupdateearth(){
+        speedEarth = document.getElementById("earthspeed").value;
+        document.getElementById("es").innerText = "Earth Speed: \t" + speedEarth;
+    }
+    function speedupdatemoon(){
+        speedMoon = document.getElementById("moonspeed").value;
+        document.getElementById("ms").innerText = "Moon Speed: \t" + speedMoon;
+    }
+</script>
+<script>
+    var shining = false;
+    var blinking = false;
+    var move_earth = false;
+    var move_moon = false;
+    var earth_pos_x = 0.58;
+    var earth_pos_y = 0.0;
+
+    var s_sun = 0.3; //gunes buyukluk
+    var s_sun_d = 1; //buyulup kuculmeyi kontrol etmek için
+    var sun_pos_x = 0.0;
+    var sun_pos_y = 0.0;
+
+    var s_moon = 0.3; //ay buyukluk
+    var s_moon_d = 1; //buyulup kuculmeyi kontrol etmek için
+    var moon_pos_x = 0.38;
+    var moon_pos_y = 0.0;
+
+    var angle1 = 0.0;
+    var angle2 = 0.0;
+    var angle3 = 0.0;
+
+    var speedEarth = 1;
+    var speedMoon = 1;
+
+'use strict';
+function animation(){
+    control_sun_shine();
+    control_moon_blinking();
+    const gl = document.querySelector('#c').getContext('webgl');
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    if(move_earth == true){
+        earth_pos_x = 0.58 * Math.cos(angle1);
+        earth_pos_y = 0.58 * Math.sin(angle1);
+        moon_pos_x = earth_pos_x - (0.2 * Math.cos(angle3));
+        moon_pos_y = earth_pos_y - (0.2 * Math.sin(angle3));
+        angle1 += 0.003 * speedEarth;
+    }
+    if(move_moon == true){
+        moon_pos_x = earth_pos_x - (0.2 * Math.cos(angle2));
+        moon_pos_y = earth_pos_y - (0.2 * Math.sin(angle2));
+        angle3 = angle2;
+        angle2 += 0.02 * speedMoon;
+    }
+    
+
+    renderEarth(gl, 0.0, earth_pos_x, earth_pos_y);
+    renderSun(gl, 0, sun_pos_x, sun_pos_y, s_sun);
+    renderMoon(gl, 0, moon_pos_x, moon_pos_y, s_moon);
+
+    requestAnimationFrame(animation);
+}
+   requestAnimationFrame(animation);
+</script>
